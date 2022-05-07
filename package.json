@@ -9,11 +9,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "express": "^4.18.1",
-    "mongoose": "^6.3.2"
+    "mongoose": "^6.3.2",
+    "mongoose-unique-validator": "^3.0.0"
   },
   "devDependencies": {
+    "dotenv": "^16.0.0",
     "nodemon": "^2.0.16"
   }
 }
