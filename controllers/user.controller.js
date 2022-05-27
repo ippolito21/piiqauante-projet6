@@ -1,7 +1,11 @@
 const express = require('express')
+/*importe le paquet algorithmes de hachage sécurisé et on le stock dans la variable bcrypt */
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+//récupére le jeton, le token
 const UserModel = require('../models/user.model')
+
+//documentation
 /**
  * 
  * @param {express.Request} req 
@@ -48,6 +52,7 @@ exports.login = async(req, res) => {
         res.status(200).json({
             userId : user._id,
             token :jwt.sign({userId :user._id}, "SECRET_KEY", {expiresIn : "5h"})
+            //authentification le serveur vérifie que le token de l'utilisateur est valide signé,avec le code secret
         })
     } catch (error) {
         res.status(500).json(error)

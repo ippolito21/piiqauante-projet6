@@ -18,7 +18,7 @@ passport.use(
                 // ** Si c'est bon on retourne l'utilisateur et on permet l'acces
                 return done(null, user)
             } catch (error) {
-                // ** On retourne l'eereur l'authentification à echouer
+                // ** On retourne l'erreur l'authentification à echouer
                 return done(error)
             }
         }
