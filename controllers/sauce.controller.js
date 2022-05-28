@@ -45,7 +45,11 @@ exports.getAllSauces = async (req, res) => {
     res.status(500).json(error);
   }
 };
-
+/**
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
 exports.getOneSauce = async (req, res) => {
   try {
     const id = req.params.id;
@@ -62,7 +66,11 @@ exports.getOneSauce = async (req, res) => {
     res.status(500).json(error);
   }
 };
-
+/**
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
 exports.deleteSauce = async (req, res) => {
   try {
     const id = req.params.id;
@@ -125,6 +133,91 @@ exports.updateSauce = async (req, res) => {
       await SauceModel.updateOne({ _id: id }, { ...sauceContent });
       // res 200 si tout est ok (success)
       res.status(200).json({ message: "Sauce à bien été mis à jour" });
+    }
+  } catch (error) {
+    // ** Si erreur on retourne un erreur 500 avec l'erreur qui à été géneré
+    res.status(500).json(error);
+  }
+};
+/**
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+exports.likesAndDislikesSauce = async (req, res) => {
+  // ** On recupere l'identifiant de la sauce depuis les parametre de l'url
+  const id = req.params.id;
+  // **On extrait le like ainsi que le userId depuis le corps de la requete
+  const { like, userId } = req.body;
+  try {
+    // ** On cherche la sauce de part son identifiant
+    const sauce = await SauceModel.findById(id);
+    // ** Si on trouve pas de sauce on retourne une erreur 404
+    if (!sauce) return res.status(404).json({ message: "Sauce non trouvée" });
+    // Si le like est à 1 donc l'utilisateur à liker la sauce
+    if (like === 1) {
+      // *** On verifie si l'utilisateur n'a pas deja liké la sauce
+      if (!sauce.usersLiked.includes(userId)) {
+        // ** On cherche la sauce de part son identifiant et on va mettre à jour cette sauce
+        await SauceModel.updateOne(
+          { _id: id },
+          // ** On ajoute l'utilisateur ayant liké dans le tableau des utilisateur qui ont liké
+          // ** On increment la propreité like de 1 (on ajoute 1 à la valeur existante)
+          { $push: { usersLiked: userId }, $inc: { likes: 1 } }
+        );
+        // ** On retourne un status de success 200 avec un message
+        res.status(200).json({ message: "Like pris en compte" });
+      }
+    }
+    // Si le like est à -1 donc l'utilisateur à disliker la sauce
+    else if (like === -1) {
+      // *** On verifie si l'utilisateur n'a pas deja disliké la sauce
+      if (!sauce.usersDisliked.includes(userId)) {
+        // ** On cherche la sauce de part son identifiant et on va mettre à jour cette sauce
+        await SauceModel.updateOne(
+          { _id: id },
+          {
+            // ** On ajoute l'utilisateur ayant disliké dans le tableau des utilisateur qui ont disliké
+            // ** On increment la proprieté dislike de 1 (on ajoute 1 à la valeur existante)
+            $push: { usersDisliked: userId },
+            $inc: { dislikes: 1 },
+          }
+        );
+        // ** On retourne un status de success 200 avec un message
+        res.status(200).json({ message: "Dislike pris en compte" });
+      }
+    } // Si le like est à 0 donc l'utilisateur à soit à annuler son disliker ou son like
+    else if (like === 0) {
+      // *** On verifie si l'utilisateur est present dans le tableau des utilisateurs qui ont disliké la sauce
+      if (sauce.usersDisliked.includes(userId)) {
+        // ** On cherche la sauce de part son identifiant et on va mettre à jour cette sauce
+        await SauceModel.updateOne(
+          { _id: id },
+          {
+            // ** On retire l'utilisateur ayant disliké dans le tableau des utilisateur qui ont disliké
+            // ** On decremente la proprieté dislikes de 1 (on soustrait 1 à la valeur existante)
+            $pull: { usersDisliked: userId },
+            $inc: { dislikes: -1 },
+          }
+        );
+        // ** On retourne un status de success 200 avec un message
+
+        res.status(200).json({ message: "Dislike annuler" });
+        // *** On verifie si l'utilisateur est present dans le tableau des utilisateurs qui ont liké la sauce
+      } else if (sauce.usersLiked.includes(userId)) {
+        // ** On cherche la sauce de part son identifiant et on va mettre à jour cette sauce
+        await SauceModel.updateOne(
+          { _id: id },
+          {
+            // ** On retire l'utilisateur ayant liké dans le tableau des utilisateur qui ont liké
+            // ** On decremente la proprieté likes de 1 (on soustrait 1 à la valeur existante)
+            $pull: { usersLiked: userId },
+            $inc: { likes: -1 },
+          }
+        );
+        // ** On retourne un status de success 200 avec un message
+        res.status(200).json({ message: "like annuler" });
+      }
     }
   } catch (error) {
     // ** Si erreur on retourne un erreur 500 avec l'erreur qui à été géneré
