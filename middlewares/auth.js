@@ -4,14 +4,15 @@ const UserModel = require("../models/user.model");
 
 // Module authentification
 passport.use(
-  // Definition du stategie basée sur Du json web token
+  // Definition du strategie basée sur Du json web token
   new passportJWT.Strategy(
     {
       // ** extraction du token avec la methode Bearer
       jwtFromRequest: passportJWT.ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: "SECRET_KEY",
+      secretOrKey: process.env.SECRET_KEY,
+      /*protéger la clé secret ${process.env.SECRET_KEY}*/
     },
-    // extraction du payload
+    // extraction,  du payload, demande du contenu de notification au serveur
     async function (payload, done) {
       try {
         // on cherche l'utilisateur dans la base de données avec l'identifiant fourni au niveau du payload

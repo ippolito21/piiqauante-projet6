@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 //récupére le jeton, le token
 const UserModel = require("../models/user.model");
+const userValidation = require("../validation/user.validation");
 
 //documentation
 /**
@@ -15,6 +16,8 @@ const UserModel = require("../models/user.model");
 exports.signup = async (req, res) => {
   // recupere le corps de la requete (données issus du front)
   const body = req.body;
+  const { error } = userValidation(body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   try {
     // ** Hash le mot de passe avec bcrypt
     const hash = await bcrypt.hash(body.password, 10);
@@ -37,7 +40,8 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   // recupere le corps de la requete (données issus du front)
   const body = req.body;
-
+  const { error } = userValidation(body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   try {
     // ** On recherche un utilisateur de par son email
     const user = await UserModel.findOne({ email: body.email });
@@ -55,7 +59,9 @@ exports.login = async (req, res) => {
     // *** Si tout est bon on renvoie un token de connexion
     res.status(200).json({
       userId: user._id,
-      token: jwt.sign({ userId: user._id }, "SECRET_KEY", { expiresIn: "5h" }),
+      token: jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
+        expiresIn: "5h",
+      }),
       //authentification le serveur vérifie que le token de l'utilisateur est valide signé,avec le code secret
     });
   } catch (error) {

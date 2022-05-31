@@ -78,6 +78,10 @@ exports.deleteSauce = async (req, res) => {
     const sauce = await SauceModel.findById(id);
     // ** Si la sauce n'existe pas on rencoie une erreur 404
     if (!sauce) return res.status(404).json({ message: "Sauce non trouvée!" });
+    console.log("body", req.body)
+    // ** Dans le cadre de lasuppression le front n'envoie pas de body avec un userId 
+    
+    // !! if(req.body.userId !== sauce.userId.toString()) return res.status(403).json({message : "Action Interdite"})
     // ** On coupe la valeur de l'imageURL et on recupere le nom nom de l'image qui est à l'index 1
     const imageName = sauce.imageUrl.split("images/")[1];
     // ** On supprime l'image du disque dur
@@ -98,6 +102,7 @@ exports.deleteSauce = async (req, res) => {
  * @param {Express.Response} res
  */
 exports.updateSauce = async (req, res) => {
+  console.log(req.body.userId);
   // ** Identifiant de la sauce issus de l'url
   const id = req.params.id;
   // ** Objet file recupéré depuis multer
@@ -111,9 +116,12 @@ exports.updateSauce = async (req, res) => {
     if (!sauce) return res.status(404).json({ message: "Sauce non touvée" });
     // ** Si l'utilisateur à modifier l'image
     if (file) {
+      const sauceText = JSON.parse(req.body.sauce)
+      if (sauceText.userId !== sauce.userId.toString())
+        return res.status(403).json({ message: "Action interdite" });
       // ** Contenu textuel ainsi que le chemin vers la nouvelle image
       sauceContent = {
-        ...JSON.parse(req.body.sauce),
+        ...sauceText,
         imageUrl: `${req.protocol}://${req.get("host")}/public/images/${
           req.file.filename
         }`,
@@ -128,6 +136,8 @@ exports.updateSauce = async (req, res) => {
       res.status(200).json({ message: "Sauce à bien été mis à jour" });
     } else {
       // ** Contenu textuel ainsi que le chemin vers la nouvelle image
+      if (req.body.userId !== sauce.userId.toString())
+      return res.status(403).json({ message: "Action interdite" });
       sauceContent = { ...req.body };
       // On met un jour la sauce avec les nouvelles données
       await SauceModel.updateOne({ _id: id }, { ...sauceContent });

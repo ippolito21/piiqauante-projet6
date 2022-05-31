@@ -16,5 +16,5 @@ const userSchema = mongoose.Schema({
     required: true,
   },
 });
-/* importe ce schéma en tant que modèle Mongoose appelé « utilisateur », le rendant disponible pour notre application Express */
+/* exporte ce schéma en tant que modèle Mongoose appelé « utilisateur », le rendant disponible pour notre application Express */
 module.exports = mongoose.model("user", userSchema);
