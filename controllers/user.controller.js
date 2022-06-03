@@ -1,3 +1,4 @@
+/*le fichier gère toute la logique concernant l'inscription et la connexion*/
 const express = require("express");
 /*importe le paquet algorithmes de hachage sécurisé et on le stock dans la variable bcrypt */
 const bcrypt = require("bcrypt");
@@ -45,7 +46,7 @@ exports.login = async (req, res) => {
   try {
     // ** On recherche un utilisateur de par son email
     const user = await UserModel.findOne({ email: body.email });
-    // ** On renvoie une erreur si on trouve pas l'utilisateur dans notre base de données
+    // ** On renvoi une erreur si on trouve pas l'utilisateur dans notre base de données
     if (!user)
       return res.status(401).json({ message: "Connexion non autorisée" });
     // ** On compare le mot de passe clair avec le mot de passe hashé
@@ -56,7 +57,7 @@ exports.login = async (req, res) => {
     // Si ça renvoie false on retoure une erreur 401 avec le message Connexion
     if (!isPasswordMatching)
       return res.status(401).json({ message: "Connexion non autorisée" });
-    // *** Si tout est bon on renvoie un token de connexion
+    // *** Si tout est bon on renvoie un token de connexion, extrait l'id de l'utisateur qui est encodé dans le token
     res.status(200).json({
       userId: user._id,
       token: jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {

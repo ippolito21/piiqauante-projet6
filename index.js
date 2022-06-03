@@ -1,7 +1,7 @@
 // On recupere, importe le paquet express et on le stock dans la variable express
 const express = require("express");
 const cors = require("cors");
-//système de sécurité bloquants les appels http des serveurs pour empêcher les requêtes malveillantes
+//autorise le partage de ressources (données) entre plusieurs domaines (entre angular 4200, l'api 3000)
 const helmet =require('helmet');
 const passport = require("passport");
 require("dotenv").config();
@@ -39,7 +39,7 @@ app.use("/api", sauceRoutes);
 
 // app.listen(3000, () => console.log("Api Piiquante port 3000"))
 
-/*j'ai ajouté un autre port*/
+
 app.listen(process.env.PORT, () =>
   console.log(`Api Piiquante port ${process.env.PORT}`)
 );

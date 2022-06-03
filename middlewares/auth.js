@@ -1,3 +1,4 @@
+
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
 const UserModel = require("../models/user.model");
@@ -10,9 +11,9 @@ passport.use(
       // ** extraction du token avec la methode Bearer
       jwtFromRequest: passportJWT.ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.SECRET_KEY,
-      /*protéger la clé secret ${process.env.SECRET_KEY}*/
+      /*extrait l'id de l'utilisateur qui est encodé dans le token*/
     },
-    // extraction,  du payload, demande du contenu de notification au serveur
+    // extraction,  du payload,  contenu du user au serveur
     async function (payload, done) {
       try {
         // on cherche l'utilisateur dans la base de données avec l'identifiant fourni au niveau du payload

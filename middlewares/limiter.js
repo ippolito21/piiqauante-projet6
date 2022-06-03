@@ -1,3 +1,4 @@
+//limiter le nombre de requête dans l'api, dans un interval temps pour une adresse d'inscription
 const expressLimiter = require('express-rate-limit')
 
 const limiter = expressLimiter({
@@ -6,5 +7,5 @@ const limiter = expressLimiter({
 	standardHeaders: true,
 	legacyHeaders: false, 
 })
-
+// Le client pourra  faire 100 requêtes toutes les 10 minutes
 module.exports = {limiter}

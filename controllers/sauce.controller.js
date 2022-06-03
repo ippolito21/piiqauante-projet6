@@ -1,3 +1,4 @@
+/*le fichier gère toute la logique concernant la modification et  la suppression des sauces*/
 //Lire un fichier et modifier son contenu et lire
 // à nouveau en utilisant l'API basée sur le rappel.
 const fs = require("fs/promises");
@@ -14,7 +15,7 @@ exports.createSauce = async (req, res) => {
   const sauce = { ...JSON.parse(body.sauce) };
 
   try {
-    // on crée un nouveau document sauce avec les les données de la sauce ainsi que l'imageUrl
+    // on crée un nouveau document sauce avec les  données de la sauce ainsi que l'imageUrl
     await new SauceModel({
       ...sauce,
       imageUrl: `${req.protocol}://${req.get("host")}/public/images/${
@@ -76,13 +77,14 @@ exports.deleteSauce = async (req, res) => {
     const id = req.params.id;
     // ** On cherche la sauce en fonction de son id
     const sauce = await SauceModel.findById(id);
-    // ** Si la sauce n'existe pas on rencoie une erreur 404
+    // ** Si la sauce n'existe pas on renvoi une erreur 404
     if (!sauce) return res.status(404).json({ message: "Sauce non trouvée!" });
-    console.log("body", req.body)
-    // ** Dans le cadre de lasuppression le front n'envoie pas de body avec un userId 
-    
-    // !! if(req.body.userId !== sauce.userId.toString()) return res.status(403).json({message : "Action Interdite"})
-    // ** On coupe la valeur de l'imageURL et on recupere le nom nom de l'image qui est à l'index 1
+    console.log("body", req.body);
+    // ** Dans le cadre de la suppression le front n'envoie pas de body avec un userId
+
+    if (req.user._id.toString() !== sauce.userId.toString())
+      return res.status(403).json({ message: "Action Interdite" });
+    // ** On coupe la valeur de l'imageURL et on recupere le  nom de l'image qui est à l'index 1
     const imageName = sauce.imageUrl.split("images/")[1];
     // ** On supprime l'image du disque dur
     await fs.unlink(`public/images/${imageName}`);
@@ -116,7 +118,7 @@ exports.updateSauce = async (req, res) => {
     if (!sauce) return res.status(404).json({ message: "Sauce non touvée" });
     // ** Si l'utilisateur à modifier l'image
     if (file) {
-      const sauceText = JSON.parse(req.body.sauce)
+      const sauceText = JSON.parse(req.body.sauce);
       if (sauceText.userId !== sauce.userId.toString())
         return res.status(403).json({ message: "Action interdite" });
       // ** Contenu textuel ainsi que le chemin vers la nouvelle image
@@ -137,7 +139,7 @@ exports.updateSauce = async (req, res) => {
     } else {
       // ** Contenu textuel ainsi que le chemin vers la nouvelle image
       if (req.body.userId !== sauce.userId.toString())
-      return res.status(403).json({ message: "Action interdite" });
+        return res.status(403).json({ message: "Action interdite" });
       sauceContent = { ...req.body };
       // On met un jour la sauce avec les nouvelles données
       await SauceModel.updateOne({ _id: id }, { ...sauceContent });

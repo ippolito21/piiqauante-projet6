@@ -1,3 +1,4 @@
+/*ces routes appelés controller sont associés à un controllers*/
 const passport = require("passport");
 const router = require("express").Router();
 const multer = require("../middlewares/multer");
